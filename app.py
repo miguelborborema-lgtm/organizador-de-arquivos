@@ -8,17 +8,17 @@ from core.organizer import analyze_zip, export_zip, folder_for, summary
 
 st.set_page_config(page_title='Organizador de Arquivos', page_icon='📁', layout='wide')
 
-st.markdown('''
-<style>
-.stApp {background: #0D1526; color: #F4F7FF;}
-.block-container {max-width: 1500px; padding-top: 2rem;}
-h1, h2, h3 {color: #F4F7FF !important;}
-div[data-testid="stMetric"] {background:#17243A; border:1px solid #2A3A55; border-radius:12px; padding:14px;}
-div[data-testid="stExpander"] {background:#142139; border:1px solid #2A3A55; border-radius:12px;}
-.stButton > button[kind="primary"] {background:#2563EB; border-color:#2563EB;}
-</style>
-''', unsafe_allow_html=True)
 
+from pathlib import Path
+
+def carregar_estilo():
+    caminho_css = Path(__file__).resolve().parent / "styles" / "app.css"
+
+    if caminho_css.is_file():
+        css = caminho_css.read_text(encoding="utf-8")
+        st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
+
+carregar_estilo()
 
 def pretty_size(size):
     if size < 1024:
@@ -72,9 +72,9 @@ def set_folder_included(ids, include):
     st.rerun()
 
 
-st.title('📁 Organizador de Arquivos')
-st.caption('Organize por semana, identifique duplicados e revise o que será exportado.')
-st.info('Os arquivos originais não são alterados. A data da semana vem da modificação registrada no ZIP, que pode diferir da data real do download.')
+st.title('Organizador de Arquivos')
+st.caption('Organize, confira e exporte seus arquivos com segurança.')
+st.caption('Seus arquivos originais não são alterados. As semanas utilizam a data de modificação registrada no ZIP.')
 upload = st.file_uploader('Selecione um arquivo ZIP para analisar', type=['zip'])
 if upload is None:
     st.stop()
@@ -91,15 +91,16 @@ critical_ids = st.session_state['critical_ids']
 included_ids = st.session_state['included_ids']
 info = summary(records)
 
-st.subheader('Visão geral')
-a, b, c, d, e = st.columns(5)
-a.metric('Arquivos analisados', info['total'])
-b.metric('Duplicados', info['duplicados'])
-c.metric('Semanas', info['semanas'])
-d.metric('Críticos', len(critical_ids))
-e.metric('Selecionados para exportar', len(included_ids))
+st.markdown(
+    f"**{info['total']}** arquivos analisados &nbsp; · &nbsp; "
+    f"**{info['duplicados']}** duplicados &nbsp; · &nbsp; "
+    f"**{info['semanas']}** semanas &nbsp; · &nbsp; "
+    f"**{len(critical_ids)}** críticos &nbsp; · &nbsp; "
+    f"**{len(included_ids)}** selecionados"
+)
+st.divider()
 
-st.subheader('Conferência dos arquivos')
+st.subheader('1. Pesquisar e conferir')
 st.caption('Pesquise, filtre e marque arquivos críticos. Na prévia abaixo, você também pode incluir ou excluir arquivos da exportação.')
 search_col, week_col, type_col, status_col = st.columns([2, 1.5, 1.5, 1.5])
 with search_col:
@@ -132,25 +133,25 @@ for record in records:
 
 st.caption(f'Exibindo {len(filtered)} de {len(records)} arquivos.')
 frame = pd.DataFrame([{
-    'ID': r['id'], '⭐ Crítico': r['id'] in critical_ids,
-    '📦 Incluir': r['id'] in included_ids, 'Arquivo': r['nome'],
+    'ID': r['id'], 'Crítico': r['id'] in critical_ids,
+    'Incluir': r['id'] in included_ids, 'Arquivo': r['nome'],
     'Tipo': r['tipo'], 'Semana': week_label(r['semana']),
     'Tamanho': pretty_size(r['tamanho']),
     'Duplicado': 'Sim' if r['duplicado'] else 'Não',
-} for r in filtered], columns=['ID', '⭐ Crítico', '📦 Incluir', 'Arquivo', 'Tipo', 'Semana', 'Tamanho', 'Duplicado'])
+} for r in filtered], columns=['ID', 'Crítico', 'Incluir', 'Arquivo', 'Tipo', 'Semana', 'Tamanho', 'Duplicado'])
 
 edited = st.data_editor(
     frame, hide_index=True, use_container_width=True,
     key=f"files_editor_{st.session_state['editor_version']}",
     disabled=['ID', 'Arquivo', 'Tipo', 'Semana', 'Tamanho', 'Duplicado'],
-    column_config={'ID': None, '⭐ Crítico': st.column_config.CheckboxColumn('⭐ Crítico'),
-                   '📦 Incluir': st.column_config.CheckboxColumn('📦 Incluir')},
+    column_config={'ID': None, 'Crítico': st.column_config.CheckboxColumn('Crítico'),
+                   'Incluir': st.column_config.CheckboxColumn('Incluir')},
 )
 changed = False
 for _, row in edited.iterrows():
     file_id = str(row['ID'])
-    is_critical = bool(row['⭐ Crítico'])
-    is_included = bool(row['📦 Incluir'])
+    is_critical = bool(row['Crítico'])
+    is_included = bool(row['Incluir'])
     if is_critical != (file_id in critical_ids):
         set_file_choice(file_id, 'critico', is_critical)
         changed = True
@@ -161,7 +162,7 @@ if changed:
     st.session_state['editor_version'] += 1
     st.rerun()
 
-st.subheader('Prévia interativa da organização')
+st.subheader('2. Revisar pastas de destino')
 st.caption('Clique em uma pasta para ver os arquivos. Você pode incluir ou excluir arquivos individualmente ou por pasta. Os arquivos originais permanecem intactos.')
 
 # Recalculate groups after editing the table.
@@ -202,7 +203,7 @@ for folder in sorted(folders):
                     st.rerun()
 
 st.divider()
-st.subheader('Finalizar organização')
+st.subheader('3. Exportar arquivos')
 st.write(f"**{len(included_ids)}** arquivo(s) serão exportados; **{len(records) - len(included_ids)}** ficarão fora do ZIP organizado e constarão no relatório CSV.")
 if not included_ids:
     st.warning('Nenhum arquivo selecionado. Você ainda pode gerar um ZIP contendo apenas o relatório de conferência.')
@@ -218,7 +219,7 @@ if st.button('Preparar arquivos organizados', type='primary'):
 
 if st.session_state.get('prepared_zip') is not None and st.session_state.get('prepared_signature') == signature:
     st.download_button(
-        '⬇️ Baixar Arquivos_Organizados.zip',
+        'Baixar Arquivos_Organizados.zip',
         data=st.session_state['prepared_zip'],
         file_name='Arquivos_Organizados.zip', mime='application/zip',
         type='primary',

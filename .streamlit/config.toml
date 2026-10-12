@@ -4,3 +4,14 @@ backgroundColor = "#0D1526"
 secondaryBackgroundColor = "#17243A"
 textColor = "#F8FAFC"
 font = "sans serif"
+
+[theme]
+base = "light"
+primaryColor = "#E87524"
+backgroundColor = "#F4F4F3"
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#292929"
+font = "sans serif"
+
+[server]
+maxUploadSize = 200

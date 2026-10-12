@@ -1,0 +1,171 @@
+
+/* Organizador de Arquivos — Tema Minimalista */
+
+:root {
+    --background: #F4F4F3;
+    --surface: #FFFFFF;
+    --text: #292929;
+    --muted: #777777;
+    --border: #E4E4E4;
+    --orange: #E87524;
+    --orange-hover: #CF611B;
+}
+
+/* Fundo e tipografia */
+html, body,
+[data-testid="stAppViewContainer"],
+[data-testid="stMain"] {
+    background-color: var(--background);
+    color: var(--text);
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+[data-testid="stMainBlockContainer"] {
+    max-width: 1180px;
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+}
+
+/* Títulos */
+h1, h2, h3 {
+    color: var(--text);
+    font-family: "Segoe UI", Arial, sans-serif;
+    letter-spacing: -0.035em;
+    font-weight: 650;
+}
+
+h1 {
+    font-size: 2rem;
+}
+
+h2 {
+    font-size: 1.4rem;
+}
+
+h3 {
+    font-size: 1.1rem;
+}
+
+/* Textos secundários */
+[data-testid="stCaptionContainer"] {
+    color: var(--muted);
+}
+
+/* Botões principais */
+.stButton button[kind="primary"],
+.stDownloadButton button[kind="primary"] {
+    background: var(--orange);
+    color: #FFFFFF;
+    border: 1px solid var(--orange);
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.stButton button[kind="primary"]:hover,
+.stDownloadButton button[kind="primary"]:hover {
+    background: var(--orange-hover);
+    color: #FFFFFF;
+    border-color: var(--orange-hover);
+}
+
+/* Botões secundários */
+.stButton button[kind="secondary"],
+.stDownloadButton button[kind="secondary"] {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+/* Pastas expansíveis */
+[data-testid="stExpander"] {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+[data-testid="stExpander"] summary {
+    color: var(--text);
+    font-weight: 500;
+}
+
+[data-testid="stExpander"] summary:hover {
+    background: #FAF7F4;
+}
+
+/* Campos de entrada */
+[data-testid="stTextInputRootElement"],
+[data-testid="stSelectbox"] > div > div {
+    border-radius: 8px;
+}
+
+/* Área de upload */
+[data-testid="stFileUploader"] section {
+    background: var(--surface);
+    border: 1px dashed #CFCFCF;
+    border-radius: 12px;
+}
+
+/* Divisórias */
+hr {
+    border-color: var(--border);
+}
+
+/* Tabelas: mantemos o tema claro também no grid */
+[data-testid="stDataFrame"] {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* Reduz a largura visual excessiva dos blocos */
+[data-testid="stVerticalBlock"] {
+    gap: 0.8rem;
+}
+
+/* CORREÇÃO DE CONTRASTE — TEMA CLARO */
+
+/* Texto do campo de upload */
+[data-testid="stFileUploader"] label,
+[data-testid="stFileUploader"] label p,
+[data-testid="stFileUploader"] section,
+[data-testid="stFileUploader"] section span,
+[data-testid="stFileUploader"] section small {
+    color: #292929 !important;
+}
+
+/* Botão de upload */
+[data-testid="stFileUploader"] button {
+    background-color: #E87524 !important;
+    color: #FFFFFF !important;
+    border: 1px solid #E87524 !important;
+    border-radius: 8px !important;
+}
+
+[data-testid="stFileUploader"] button:hover {
+    background-color: #CF611B !important;
+    border-color: #CF611B !important;
+}
+
+/* Texto dentro do botão */
+[data-testid="stFileUploader"] button * {
+    color: #FFFFFF !important;
+}
+
+/* Área de upload */
+[data-testid="stFileUploader"] section {
+    background-color: #FFFFFF !important;
+    border: 1px dashed #D1D1D1 !important;
+}
+
+/* Texto dos campos */
+[data-testid="stWidgetLabel"],
+[data-testid="stWidgetLabel"] p {
+    color: #292929 !important;
+}
+
+/* Instruções e textos secundários */
+[data-testid="stFileUploaderDropzoneInstructions"],
+[data-testid="stFileUploaderDropzoneInstructions"] * {
+    color: #555555 !important;
+}

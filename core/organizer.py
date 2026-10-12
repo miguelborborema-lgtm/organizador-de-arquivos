@@ -165,15 +165,3 @@ def summary(records):
         'semanas': len({record['semana'] for record in records}),
         'tipos': dict(Counter(record['tipo'] for record in records)),
     }
-def folder_for(record, critical_ids):
-    """Define a pasta de destino de cada arquivo."""
-
-    if record["id"] in critical_ids:
-        return "01_Arquivos_Criticos"
-
-    if record["duplicado"]:
-        return "03_Duplicados_Para_Revisao"
-
-    year, week_name = record["semana"].split("/", 1)
-
-    return f"02_{week_name}-{year}"
