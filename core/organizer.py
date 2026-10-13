@@ -88,7 +88,7 @@ def analyze_zip(uploaded_bytes):
             try:
                 with archive.open(entry) as source:
                     data = source.read(MAX_FILE_SIZE + 1)
-            except (RuntimeError, zipfile.BadZipFile, OSError) as exc:
+            except (RuntimeError, zipfile.BadZipFile, OSError, EOFError, ValueError) as exc:
                 raise ValueError('Não foi possível ler um arquivo do ZIP.') from exc
             if len(data) != entry.file_size:
                 raise ValueError('Não foi possível ler o arquivo integralmente.')
@@ -102,7 +102,7 @@ def analyze_zip(uploaded_bytes):
                 'id': file_id, 'nome': name, 'origem': entry.filename,
                 'tipo': category_for(name), 'semana': week_for(modified),
                 'tamanho': len(data), 'hash': hashlib.sha256(data).hexdigest(),
-                'duplicado': False, 'critico': False,
+                'duplicado': False,
             })
             contents[file_id] = data
 

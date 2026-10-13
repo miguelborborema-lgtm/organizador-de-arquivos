@@ -1,5 +1,6 @@
 import hashlib
 from collections import defaultdict
+from pathlib import Path
 
 import pandas as pd
 import streamlit as st
@@ -8,8 +9,6 @@ from core.organizer import analyze_zip, export_zip, folder_for, summary
 
 st.set_page_config(page_title='Organizador de Arquivos', page_icon='📁', layout='wide')
 
-
-from pathlib import Path
 
 def carregar_estilo():
     caminho_css = Path(__file__).resolve().parent / "styles" / "app.css"
