@@ -41,12 +41,15 @@ def safe_name(name):
 
 
 def folder_for(record, critical_ids):
+    """Retorna a pasta de destino, incluindo a categoria do arquivo."""
     if record['id'] in critical_ids:
-        return '01_Arquivos_Criticos'
-    if record['duplicado']:
-        return '03_Duplicados_Para_Revisao'
-    year, week_name = record['semana'].split('/', 1)
-    return f'02_{week_name}-{year}'
+        base = '01_Arquivos_Criticos'
+    elif record['duplicado']:
+        base = '03_Duplicados_Para_Revisao'
+    else:
+        year, week_name = record['semana'].split('/', 1)
+        base = f'02_{week_name}-{year}'
+    return f"{base}/{record['tipo']}"
 
 
 def analyze_zip(uploaded_bytes):

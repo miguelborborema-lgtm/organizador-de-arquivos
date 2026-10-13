@@ -168,39 +168,48 @@ st.caption('Clique em uma pasta para ver os arquivos. Você pode incluir ou excl
 # Recalculate groups after editing the table.
 critical_ids = st.session_state['critical_ids']
 included_ids = st.session_state['included_ids']
-folders = defaultdict(list)
+folders = defaultdict(lambda: defaultdict(list))
 for record in records:
-    folders[folder_for(record, critical_ids)].append(record)
+    destination = folder_for(record, critical_ids)
+    main_folder, category = destination.split('/', 1)
+    folders[main_folder][category].append(record)
 
-for folder in sorted(folders):
-    group = folders[folder]
-    selected_count = sum(r['id'] in included_ids for r in group)
-    with st.expander(f'📁 {folder} — {selected_count}/{len(group)} incluídos'):
-        left, right = st.columns([1, 1])
+for main_folder in sorted(folders):
+    categories = folders[main_folder]
+    folder_records = [r for group in categories.values() for r in group]
+    folder_selected = sum(r['id'] in included_ids for r in folder_records)
+    with st.expander(f'📁 {main_folder} — {folder_selected}/{len(folder_records)} incluídos'):
+        left, right = st.columns(2)
         with left:
-            if st.button('Incluir todos desta pasta', key=f'include_{folder}', use_container_width=True):
-                set_folder_included([r['id'] for r in group], True)
+            if st.button('Incluir todos desta pasta', key=f'include_{main_folder}', use_container_width=True):
+                set_folder_included([r['id'] for r in folder_records], True)
         with right:
-            if st.button('Excluir todos desta pasta', key=f'exclude_{folder}', use_container_width=True):
-                set_folder_included([r['id'] for r in group], False)
-        for record in group:
-            file_id = record['id']
-            col_name, col_critical, col_included = st.columns([5, 1.3, 1.3])
-            with col_name:
-                duplicate_tag = ' · Duplicado' if record['duplicado'] else ''
-                st.markdown(f"**{record['nome']}**  \n:gray[{record['tipo']} · {pretty_size(record['tamanho'])} · {week_label(record['semana'])}{duplicate_tag}]")
-            with col_critical:
-                critical = st.checkbox('Crítico', value=file_id in critical_ids, key=f"critical_{file_id}_{st.session_state['editor_version']}")
-                if critical != (file_id in critical_ids):
-                    set_file_choice(file_id, 'critico', critical)
-                    st.session_state['editor_version'] += 1
-                    st.rerun()
-            with col_included:
-                included = st.checkbox('Incluir', value=file_id in included_ids, key=f"included_{file_id}_{st.session_state['editor_version']}")
-                if included != (file_id in included_ids):
-                    set_file_choice(file_id, 'incluido', included)
-                    st.session_state['editor_version'] += 1
-                    st.rerun()
+            if st.button('Excluir todos desta pasta', key=f'exclude_{main_folder}', use_container_width=True):
+                set_folder_included([r['id'] for r in folder_records], False)
+
+        for category in sorted(categories):
+            group = categories[category]
+            selected_count = sum(r['id'] in included_ids for r in group)
+            with st.container(border=True):
+                st.markdown(f'**📂 {category}** — {selected_count}/{len(group)} incluídos')
+                for record in group:
+                    file_id = record['id']
+                    col_name, col_critical, col_included = st.columns([5, 1.3, 1.3])
+                    with col_name:
+                        duplicate_tag = ' · Duplicado' if record['duplicado'] else ''
+                        st.markdown(f"**{record['nome']}**  \n:gray[{pretty_size(record['tamanho'])} · {week_label(record['semana'])}{duplicate_tag}]")
+                    with col_critical:
+                        critical = st.checkbox('Crítico', value=file_id in critical_ids, key=f"critical_{file_id}_{st.session_state['editor_version']}")
+                        if critical != (file_id in critical_ids):
+                            set_file_choice(file_id, 'critico', critical)
+                            st.session_state['editor_version'] += 1
+                            st.rerun()
+                    with col_included:
+                        included = st.checkbox('Incluir', value=file_id in included_ids, key=f"included_{file_id}_{st.session_state['editor_version']}")
+                        if included != (file_id in included_ids):
+                            set_file_choice(file_id, 'incluido', included)
+                            st.session_state['editor_version'] += 1
+                            st.rerun()
 
 st.divider()
 st.subheader('3. Exportar arquivos')
